@@ -1,0 +1,48 @@
+
+form {
+  max-width: 650px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+label {
+  font-weight: bold;
+}
+
+input, select, textarea {
+  padding: 11px;
+  border: 1px solid #cccccc;
+  border-radius: 6px;
+  font-size: 15px;
+  font-family: Arial, sans-serif;
+}
+
+button {
+  background-color: #176b48;
+  color: white;
+  border: none;
+  padding: 13px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+button:hover {
+  background-color: #115235;
+}
+
+small {
+  color: #c62828;
+}
+
+.mensaje {
+  color: #176b48;
+  font-weight: bold;
+}

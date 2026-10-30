@@ -1,0 +1,104 @@
+
+<h2>Registrar nuevo ticket</h2>
+
+<form [formGroup]="formulario" (ngSubmit)="guardar()">
+
+  <div class="campo">
+    <label for="asunto">Asunto</label>
+    <input
+      id="asunto"
+      type="text"
+      formControlName="asunto"
+      placeholder="Ej: Computador no enciende"
+    />
+
+    @if (formulario.controls.asunto.touched &&
+         formulario.controls.asunto.invalid) {
+      <small>
+        El asunto es obligatorio y debe tener
+        al menos 5 caracteres.
+      </small>
+    }
+  </div>
+
+  <div class="campo">
+    <label for="solicitante">Solicitante</label>
+    <input
+      id="solicitante"
+      type="text"
+      formControlName="solicitante"
+      placeholder="Nombre del solicitante"
+    />
+
+    @if (formulario.controls.solicitante.touched &&
+         formulario.controls.solicitante.invalid) {
+      <small>El solicitante es obligatorio.</small>
+    }
+  </div>
+
+  <div class="campo">
+    <label for="descripcion">Descripción</label>
+    <textarea
+      id="descripcion"
+      formControlName="descripcion"
+      rows="4"
+      placeholder="Describe el problema"
+    ></textarea>
+
+    @if (formulario.controls.descripcion.touched &&
+         formulario.controls.descripcion.invalid) {
+      <small>
+        La descripción debe tener al menos
+        10 caracteres.
+      </small>
+    }
+  </div>
+
+  <div class="campo">
+    <label for="categoria">Categoría</label>
+    <select id="categoria" formControlName="categoria">
+      <option value="">Seleccionar categoría</option>
+      <option value="Hardware">Hardware</option>
+      <option value="Software">Software</option>
+      <option value="Redes">Redes</option>
+      <option value="Otros">Otros</option>
+    </select>
+
+    @if (formulario.controls.categoria.touched &&
+         formulario.controls.categoria.invalid) {
+      <small>Selecciona una categoría.</small>
+    }
+  </div>
+
+  <div class="campo">
+    <label for="prioridad">Prioridad</label>
+    <select id="prioridad" formControlName="prioridad">
+      <option value="">Seleccionar prioridad</option>
+      <option value="Baja">Baja</option>
+      <option value="Media">Media</option>
+      <option value="Alta">Alta</option>
+    </select>
+
+    @if (formulario.controls.prioridad.touched &&
+         formulario.controls.prioridad.invalid) {
+      <small>Selecciona una prioridad.</small>
+    }
+  </div>
+
+  <div class="campo">
+    <label for="estado">Estado</label>
+    <select id="estado" formControlName="estado">
+      <option value="Pendiente">Pendiente</option>
+      <option value="En proceso">En proceso</option>
+      <option value="Resuelto">Resuelto</option>
+    </select>
+  </div>
+
+  <button type="submit">Guardar ticket</button>
+
+  @if (mensaje) {
+    <p class="mensaje">{{ mensaje }}</p>
+  }
+
+</form>
+
