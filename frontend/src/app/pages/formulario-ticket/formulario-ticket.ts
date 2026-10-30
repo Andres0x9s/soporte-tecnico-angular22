@@ -1,11 +1,20 @@
 
-import { Component } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal
+} from '@angular/core';
+
 import {
   FormControl,
   FormGroup,
   ReactiveFormsModule,
   Validators
 } from '@angular/forms';
+
+import { Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { TicketsApi } from '../../services/tickets-api';
 
 @Component({
   selector: 'app-formulario-ticket',
@@ -15,9 +24,14 @@ import {
 })
 export class FormularioTicket {
 
-  mensaje = '';
+  private ticketsApi = inject(TicketsApi);
+  private router = inject(Router);
+
+  mensaje = signal('');
+  guardando = signal(false);
 
   formulario = new FormGroup({
+
     asunto: new FormControl('', {
       nonNullable: true,
       validators: [
@@ -53,22 +67,49 @@ export class FormularioTicket {
       nonNullable: true,
       validators: [Validators.required]
     })
+
   });
 
-  guardar() {
-    this.mensaje = '';
+  guardar(): void {
+
+    this.mensaje.set('');
     this.formulario.markAllAsTouched();
 
-    if (this.formulario.invalid) {
+    // No enviar datos inválidos
+    if (this.formulario.invalid || this.guardando()) {
       return;
     }
 
-    console.log(
-      'Datos del ticket:',
-      this.formulario.getRawValue()
-    );
+    this.guardando.set(true);
 
-    this.mensaje =
-      'Formulario válido. Aún no se guarda en la base de datos.';
+    // Obtener los datos del formulario
+    const datos = this.formulario.getRawValue();
+
+    // Enviar los datos a Express
+    this.ticketsApi.crearTicket(datos).subscribe({
+
+      next: () => {
+        this.guardando.set(false);
+
+        // Regresar al listado de tickets
+        this.router.navigate(['/tickets']);
+      },
+
+      error: (err: HttpErrorResponse) => {
+        this.guardando.set(false);
+
+        if (err.status === 0) {
+          this.mensaje.set(
+            'No se pudo conectar con el servidor.'
+          );
+        } else {
+          this.mensaje.set(
+            err.error?.error ??
+            'Ocurrió un error al guardar el ticket.'
+          );
+        }
+      }
+
+    });
   }
 }

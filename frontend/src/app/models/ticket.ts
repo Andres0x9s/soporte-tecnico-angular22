@@ -9,3 +9,9 @@ export interface Ticket {
   estado: string;
   fechaRegistro: string;
 }
+
+
+export type NuevoTicket = Omit<
+  Ticket,
+  'id' | 'fechaRegistro'
+>;

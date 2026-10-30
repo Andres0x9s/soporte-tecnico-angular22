@@ -1,13 +1,75 @@
 
 <section>
-  <h2>Tickets de soporte</h2>
 
-  <p>
-    Bienvenido al sistema de gestión de soporte técnico.
-  </p>
+  <h2>Listado de tickets de soporte</h2>
 
-  <p>
-    Aquí aparecerán las solicitudes registradas
-    en nuestra base de datos.
-  </p>
+  @if (cargando()) {
+    <p>Cargando tickets...</p>
+  }
+
+  @else if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  @else if (tickets().length === 0) {
+    <p>No hay tickets registrados.</p>
+  }
+
+  @else {
+
+    <div class="tabla-contenedor">
+      <table>
+
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Asunto</th>
+            <th>Solicitante</th>
+            <th>Categoría</th>
+            <th>Prioridad</th>
+            <th>Estado</th>
+            <th>Fecha</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (ticket of tickets(); track ticket.id) {
+
+            <tr>
+              <td>{{ ticket.id }}</td>
+              <td>{{ ticket.asunto }}</td>
+              <td>{{ ticket.solicitante }}</td>
+              <td>{{ ticket.categoria }}</td>
+
+              <td>
+                <span
+                  class="etiqueta"
+                  [class.alta]="ticket.prioridad === 'Alta'"
+                  [class.media]="ticket.prioridad === 'Media'"
+                  [class.baja]="ticket.prioridad === 'Baja'">
+                  {{ ticket.prioridad }}
+                </span>
+              </td>
+
+              <td>
+                <span
+                  class="etiqueta"
+                  [class.pendiente]="ticket.estado === 'Pendiente'"
+                  [class.proceso]="ticket.estado === 'En proceso'"
+                  [class.resuelto]="ticket.estado === 'Resuelto'">
+                  {{ ticket.estado }}
+                </span>
+              </td>
+
+              <td>{{ ticket.fechaRegistro }}</td>
+            </tr>
+
+          }
+        </tbody>
+
+      </table>
+    </div>
+
+  }
+
 </section>

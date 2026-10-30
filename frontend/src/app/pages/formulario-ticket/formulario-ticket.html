@@ -94,11 +94,21 @@
     </select>
   </div>
 
-  <button type="submit">Guardar ticket</button>
-
-  @if (mensaje) {
-    <p class="mensaje">{{ mensaje }}</p>
+ 
+<button type="submit" [disabled]="guardando()">
+  @if (guardando()) {
+    Guardando...
+  } @else {
+    Guardar ticket
   }
+</button>
+
+
+
+@if (mensaje()) {
+  <p class="error">{{ mensaje() }}</p>
+}
+
 
 </form>
 
