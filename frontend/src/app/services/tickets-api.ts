@@ -14,12 +14,19 @@ export class TicketsApi {
 
   private apiUrl = 'http://localhost:3000/api/tickets';
 
-  // Obtener todos los tickets
+  // GET: Obtener todos los tickets
   obtenerTickets(): Observable<Ticket[]> {
     return this.http.get<Ticket[]>(this.apiUrl);
   }
 
-  // Crear un nuevo ticket
+  // GET: Obtener un ticket por ID
+  obtenerTicket(id: number): Observable<Ticket> {
+    return this.http.get<Ticket>(
+      `${this.apiUrl}/${id}`
+    );
+  }
+
+  // POST: Crear ticket
   crearTicket(datos: NuevoTicket): Observable<{
     mensaje: string;
     ticket: Ticket;
@@ -28,6 +35,29 @@ export class TicketsApi {
       mensaje: string;
       ticket: Ticket;
     }>(this.apiUrl, datos);
+  }
+
+  // PUT: Actualizar ticket
+  actualizarTicket(
+    id: number,
+    datos: NuevoTicket
+  ): Observable<{
+    mensaje: string;
+    ticket: Ticket;
+  }> {
+    return this.http.put<{
+      mensaje: string;
+      ticket: Ticket;
+    }>(`${this.apiUrl}/${id}`, datos);
+  }
+
+  // DELETE: Eliminar ticket
+  eliminarTicket(id: number): Observable<{
+    mensaje: string;
+  }> {
+    return this.http.delete<{
+      mensaje: string;
+    }>(`${this.apiUrl}/${id}`);
   }
 
 }

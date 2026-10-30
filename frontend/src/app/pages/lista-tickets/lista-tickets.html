@@ -3,19 +3,19 @@
 
   <h2>Listado de tickets de soporte</h2>
 
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
   @if (cargando()) {
     <p>Cargando tickets...</p>
   }
 
-  @else if (error()) {
-    <p class="error">{{ error() }}</p>
-  }
-
-  @else if (tickets().length === 0) {
+  @else if (tickets().length === 0 && !error()) {
     <p>No hay tickets registrados.</p>
   }
 
-  @else {
+  @else if (tickets().length > 0) {
 
     <div class="tabla-contenedor">
       <table>
@@ -25,10 +25,12 @@
             <th>ID</th>
             <th>Asunto</th>
             <th>Solicitante</th>
+            <th>Descripción</th>
             <th>Categoría</th>
             <th>Prioridad</th>
             <th>Estado</th>
             <th>Fecha</th>
+            <th>Acciones</th>
           </tr>
         </thead>
 
@@ -39,6 +41,7 @@
               <td>{{ ticket.id }}</td>
               <td>{{ ticket.asunto }}</td>
               <td>{{ ticket.solicitante }}</td>
+              <td>{{ ticket.descripcion }}</td>
               <td>{{ ticket.categoria }}</td>
 
               <td>
@@ -62,6 +65,32 @@
               </td>
 
               <td>{{ ticket.fechaRegistro }}</td>
+
+              <td>
+                <div class="acciones">
+
+                  <a
+                    class="btn-editar"
+                    [routerLink]="['/tickets/editar', ticket.id]">
+                    Editar
+                  </a>
+
+                  <button
+                    type="button"
+                    class="btn-eliminar"
+                    [disabled]="eliminandoId() !== null"
+                    (click)="eliminar(ticket.id)">
+
+                    @if (eliminandoId() === ticket.id) {
+                      Eliminando...
+                    } @else {
+                      Eliminar
+                    }
+
+                  </button>
+
+                </div>
+              </td>
             </tr>
 
           }

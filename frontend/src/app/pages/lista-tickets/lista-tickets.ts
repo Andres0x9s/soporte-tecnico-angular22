@@ -6,6 +6,7 @@ import {
   signal
 } from '@angular/core';
 
+import { RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { Ticket } from '../../models/ticket';
@@ -13,7 +14,7 @@ import { TicketsApi } from '../../services/tickets-api';
 
 @Component({
   selector: 'app-lista-tickets',
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './lista-tickets.html',
   styleUrl: './lista-tickets.css'
 })
@@ -24,6 +25,7 @@ export class ListaTickets implements OnInit {
   tickets = signal<Ticket[]>([]);
   cargando = signal(true);
   error = signal('');
+  eliminandoId = signal<number | null>(null);
 
   ngOnInit(): void {
     this.cargarTickets();
@@ -42,10 +44,10 @@ export class ListaTickets implements OnInit {
       },
 
       error: (err: HttpErrorResponse) => {
-        console.error('Error al cargar tickets:', err);
+        console.error(err);
 
         this.error.set(
-          'No se pudieron cargar los tickets. Revisa la API.'
+          'No se pudieron cargar los tickets.'
         );
 
         this.cargando.set(false);
@@ -53,4 +55,48 @@ export class ListaTickets implements OnInit {
 
     });
   }
+
+  eliminar(id: number): void {
+
+    // Solicitar confirmación antes de eliminar
+    const confirmar = window.confirm(
+      '¿Estás seguro de eliminar este ticket?'
+    );
+
+    if (!confirmar) {
+      return;
+    }
+
+    if (this.eliminandoId() !== null) {
+      return;
+    }
+
+    this.error.set('');
+    this.eliminandoId.set(id);
+
+    this.ticketsApi.eliminarTicket(id).subscribe({
+
+      next: () => {
+
+        // Quitar el ticket de la tabla
+        this.tickets.update(lista =>
+          lista.filter(ticket => ticket.id !== id)
+        );
+
+        this.eliminandoId.set(null);
+      },
+
+      error: (err: HttpErrorResponse) => {
+        console.error(err);
+
+        this.error.set(
+          'No se pudo eliminar el ticket.'
+        );
+
+        this.eliminandoId.set(null);
+      }
+
+    });
+  }
+
 }

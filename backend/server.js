@@ -116,6 +116,45 @@ app.get('/api/tickets', async (req, res) => {
 });
 
 
+
+app.get('/api/tickets/:id', async (req, res) => {
+  try {
+
+    const id = Number(req.params.id);
+
+    // Comprobar que el ID sea válido
+    if (!Number.isSafeInteger(id) || id <= 0) {
+      return res.status(400).json({
+        error: 'ID no válido'
+      });
+    }
+
+    // Buscar el ticket en MySQL
+    const [filas] = await pool.execute(
+      'SELECT * FROM tickets WHERE id = ?',
+      [id]
+    );
+
+    // Si no existe, responder 404
+    if (filas.length === 0) {
+      return res.status(404).json({
+        error: 'Ticket no encontrado'
+      });
+    }
+
+    // Devolver el ticket encontrado
+    res.status(200).json(filas[0]);
+
+  } catch (error) {
+    console.error('Error al consultar ticket:', error.message);
+
+    res.status(500).json({
+      error: 'No se pudo consultar el ticket'
+    });
+  }
+});
+
+
 app.post('/api/tickets', async (req, res) => {
   try {
 

@@ -68,3 +68,45 @@ tr:hover {
   color: #c62828;
   font-weight: bold;
 }
+
+
+.acciones {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-editar,
+.btn-eliminar {
+  padding: 8px 12px;
+  border-radius: 5px;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  border: none;
+  font-family: Arial, sans-serif;
+}
+
+.btn-editar {
+  background-color: #1976d2;
+  color: white;
+}
+
+.btn-editar:hover {
+  background-color: #125a9e;
+}
+
+.btn-eliminar {
+  background-color: #d32f2f;
+  color: white;
+}
+
+.btn-eliminar:hover {
+  background-color: #aa2424;
+}
+
+.btn-eliminar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

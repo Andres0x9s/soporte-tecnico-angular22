@@ -1,6 +1,7 @@
 
 import {
   Component,
+  OnInit,
   inject,
   signal
 } from '@angular/core';
@@ -12,8 +13,13 @@ import {
   Validators
 } from '@angular/forms';
 
-import { Router } from '@angular/router';
+import {
+  Router,
+  ActivatedRoute
+} from '@angular/router';
+
 import { HttpErrorResponse } from '@angular/common/http';
+
 import { TicketsApi } from '../../services/tickets-api';
 
 @Component({
@@ -22,13 +28,18 @@ import { TicketsApi } from '../../services/tickets-api';
   templateUrl: './formulario-ticket.html',
   styleUrl: './formulario-ticket.css'
 })
-export class FormularioTicket {
+export class FormularioTicket implements OnInit {
 
   private ticketsApi = inject(TicketsApi);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
+
+  idTicket: number | null = null;
 
   mensaje = signal('');
   guardando = signal(false);
+  cargando = signal(false);
+  errorCarga = signal(false);
 
   formulario = new FormGroup({
 
@@ -36,13 +47,17 @@ export class FormularioTicket {
       nonNullable: true,
       validators: [
         Validators.required,
-        Validators.minLength(5)
+        Validators.minLength(5),
+        Validators.maxLength(150)
       ]
     }),
 
     solicitante: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required]
+      validators: [
+        Validators.required,
+        Validators.maxLength(100)
+      ]
     }),
 
     descripcion: new FormControl('', {
@@ -70,28 +85,90 @@ export class FormularioTicket {
 
   });
 
+  ngOnInit(): void {
+
+    // Obtener el ID desde la URL
+    const idTexto = this.route.snapshot.paramMap.get('id');
+
+    // Si no hay ID, estamos creando un ticket
+    if (idTexto === null) {
+      return;
+    }
+
+    const id = Number(idTexto);
+
+    if (!Number.isSafeInteger(id) || id <= 0) {
+      this.errorCarga.set(true);
+      this.mensaje.set('El ID del ticket no es válido.');
+      return;
+    }
+
+    this.idTicket = id;
+    this.cargando.set(true);
+
+    // Obtener el ticket desde Express
+    this.ticketsApi.obtenerTicket(id).subscribe({
+
+      next: (ticket) => {
+
+        // Completar el formulario
+        this.formulario.patchValue({
+          asunto: ticket.asunto,
+          solicitante: ticket.solicitante,
+          descripcion: ticket.descripcion,
+          categoria: ticket.categoria,
+          prioridad: ticket.prioridad,
+          estado: ticket.estado
+        });
+
+        this.cargando.set(false);
+      },
+
+      error: (err: HttpErrorResponse) => {
+        this.cargando.set(false);
+        this.errorCarga.set(true);
+
+        this.mensaje.set(
+          err.status === 404
+            ? 'El ticket no existe.'
+            : 'No se pudo cargar el ticket.'
+        );
+      }
+    });
+  }
+
   guardar(): void {
 
     this.mensaje.set('');
     this.formulario.markAllAsTouched();
 
-    // No enviar datos inválidos
-    if (this.formulario.invalid || this.guardando()) {
+    if (
+      this.formulario.invalid ||
+      this.guardando() ||
+      this.cargando() ||
+      this.errorCarga()
+    ) {
       return;
     }
 
     this.guardando.set(true);
 
-    // Obtener los datos del formulario
     const datos = this.formulario.getRawValue();
 
-    // Enviar los datos a Express
-    this.ticketsApi.crearTicket(datos).subscribe({
+    // Determinar si creamos o actualizamos
+    const peticion = this.idTicket === null
+      ? this.ticketsApi.crearTicket(datos)
+      : this.ticketsApi.actualizarTicket(
+          this.idTicket,
+          datos
+        );
+
+    peticion.subscribe({
 
       next: () => {
         this.guardando.set(false);
 
-        // Regresar al listado de tickets
+        // Regresar al listado
         this.router.navigate(['/tickets']);
       },
 
@@ -104,12 +181,15 @@ export class FormularioTicket {
           );
         } else {
           this.mensaje.set(
-            err.error?.error ??
-            'Ocurrió un error al guardar el ticket.'
+            typeof err.error?.error === 'string'
+              ? err.error.error
+              : 'No se pudo guardar el ticket.'
           );
         }
       }
 
     });
   }
+
 }
+

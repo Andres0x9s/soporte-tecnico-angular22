@@ -1,5 +1,21 @@
 
-<h2>Registrar nuevo ticket</h2>
+<h2>
+  @if (idTicket === null) {
+    Registrar nuevo ticket
+  } @else {
+    Editar ticket #{{ idTicket }}
+  }
+</h2>
+
+@if (cargando()) {
+  <p>Cargando información del ticket...</p>
+}
+
+@if (mensaje()) {
+  <p class="error">{{ mensaje() }}</p>
+}
+
+@if (!cargando() && !errorCarga()) {
 
 <form [formGroup]="formulario" (ngSubmit)="guardar()">
 
@@ -15,8 +31,7 @@
     @if (formulario.controls.asunto.touched &&
          formulario.controls.asunto.invalid) {
       <small>
-        El asunto es obligatorio y debe tener
-        al menos 5 caracteres.
+        El asunto debe tener entre 5 y 150 caracteres.
       </small>
     }
   </div>
@@ -32,7 +47,9 @@
 
     @if (formulario.controls.solicitante.touched &&
          formulario.controls.solicitante.invalid) {
-      <small>El solicitante es obligatorio.</small>
+      <small>
+        Ingresa un solicitante de máximo 100 caracteres.
+      </small>
     }
   </div>
 
@@ -48,8 +65,7 @@
     @if (formulario.controls.descripcion.touched &&
          formulario.controls.descripcion.invalid) {
       <small>
-        La descripción debe tener al menos
-        10 caracteres.
+        La descripción debe tener al menos 10 caracteres.
       </small>
     }
   </div>
@@ -94,21 +110,16 @@
     </select>
   </div>
 
- 
-<button type="submit" [disabled]="guardando()">
-  @if (guardando()) {
-    Guardando...
-  } @else {
-    Guardar ticket
-  }
-</button>
-
-
-
-@if (mensaje()) {
-  <p class="error">{{ mensaje() }}</p>
-}
-
+  <button type="submit" [disabled]="guardando()">
+    @if (guardando()) {
+      Guardando...
+    } @else if (idTicket === null) {
+      Crear ticket
+    } @else {
+      Guardar cambios
+    }
+  </button>
 
 </form>
 
+}

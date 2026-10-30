@@ -18,5 +18,9 @@ export const routes: Routes = [
   {
     path: 'tickets/nuevo',
     component: FormularioTicket
+  },
+  {
+    path: 'tickets/editar/:id',
+    component: FormularioTicket
   }
 ];
