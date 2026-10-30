@@ -1,37 +1,64 @@
 
 import express from 'express';
 import cors from 'cors';
+import pool from './db.js';
 
-// Crear la aplicación Express
 const app = express();
-
-// Definir el puerto del servidor
 const PORT = 3000;
 
-// Permitir solicitudes desde Angular
+// Configuración
 app.use(cors({
   origin: 'http://localhost:4200'
 }));
 
-// Permitir recibir datos en formato JSON
 app.use(express.json());
 
-// Ruta para comprobar que la API funciona
-app.get('/api/salud', (req, res) => {
-  res.status(200).json({
-    ok: true,
-    mensaje: 'API de soporte técnico funcionando'
-  });
+// Comprobar el servidor y la base de datos
+app.get('/api/salud', async (req, res) => {
+  try {
+    await pool.execute('SELECT 1');
+
+    res.status(200).json({
+      ok: true,
+      mensaje: 'API y MySQL funcionando'
+    });
+
+  } catch (error) {
+    console.error('Error de conexión:', error.message);
+
+    res.status(500).json({
+      ok: false,
+      mensaje: 'No se pudo conectar a MySQL'
+    });
+  }
 });
 
-// Responder cuando una ruta no existe
+// Consultar todos los tickets
+app.get('/api/tickets', async (req, res) => {
+  try {
+    const [tickets] = await pool.execute(
+      'SELECT * FROM tickets ORDER BY id DESC'
+    );
+
+    res.status(200).json(tickets);
+
+  } catch (error) {
+    console.error('Error al consultar:', error.message);
+
+    res.status(500).json({
+      error: 'No se pudieron obtener los tickets'
+    });
+  }
+});
+
+// Ruta no encontrada
 app.use((req, res) => {
   res.status(404).json({
     error: 'Ruta no encontrada'
   });
 });
 
-// Iniciar el servidor
+// Iniciar servidor
 app.listen(PORT, () => {
   console.log(
     `Servidor funcionando en http://localhost:${PORT}`
